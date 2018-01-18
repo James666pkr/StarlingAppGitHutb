@@ -1,29 +1,25 @@
 import pyowm
+import json
+import requests
 
 from bottle import run, route, template
 
 
-client_id = r'YUmpX3Vd3WabChjdLYw0'
-client_secret = r'tPmR9ntzpfEJ8b7moPuz3XBAgNPUZ3tEP54X7us9'
-redirect_uri = 'StarlingApp://authenticationResponse'
-
-scope = ['balance:read',
-         'transaction:read',
-         'payee:read',
-         'mandate:read',
-         'savings-goal:read',
-         'savings-goal-transfer:read',
-         'account:read',
-         'customer:read',
-         'address:read',
-         'card:read']
+redirect_uri = 'http://localhost:8080/callback'
 
 
-@route('/starling/login/<name>')
-def index(name):
-    return template('<b>Login below {{name}}</b>!'
-                    '<a href="https://api-sandbox.starlingbank.com/?client_id=$YUmpX3Vd3WabChjdLYw0&response_type=code&state=$state&redirect_uri=$http://localhost:8080/callback">Login here</a>, '
-                    , name=name)
+@route('/starling/login/<access>')
+def index(access):
+    access_token = access
+    headers = {'Authorization': access_token}
+    url = "https://api-sandbox.starlingbank.com/api/v1/accounts/balance"
+    response = requests.get(url, headers=headers)
+    content = response.content
+    print(content)
+    return template('<b>Hi! Thank you for providing your access code, your transaction history is as follows:</b>!'
+                        '<p> {{content}} <p>', access=access, content=content)
 
 run(host='localhost', port=8080)
 
+# go to http://localhost:8080/starling/login/
+#after /login, enter 'Bearer {access_code}' from the Starling Sandbox, to see your account details.

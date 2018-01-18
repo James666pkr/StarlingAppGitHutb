@@ -1,2 +1,4 @@
 pyowm
 bottle
+pycurl
+requests
